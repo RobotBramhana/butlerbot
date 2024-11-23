@@ -1,0 +1,48 @@
+@startuml
+[*] --> Home : Mission commence
+
+Home : Initialize system
+Home : Accept requests
+Home : Diagnize problems
+
+Kitchen : Drive to kitchen
+Kitchen : Kitchen food
+
+Table : Drive to tables
+Table : Identify the table
+Table : Deliver food
+
+Error : Report error
+Error : Atempt recovery
+
+Navigating : Navigate to kitchen or table or home
+
+Home ---> Home : Wait for orders
+Home --> Navigating : Orders received
+Navigating ---> Kitchen : Pickup food
+Kitchen --> Navigating : Pickup timeout
+Kitchen --> Navigating : Pickup success
+Navigating ---> Table : Deliver food
+Table ---> Table : Wait for confirmation
+Table --> Navigating : Delivered food
+Table --> Navigating : Skip a table
+Table --> Navigating : Confirmation timeout
+Navigating ---> Kitchen : Food undelivered
+Navigating ---> Kitchen : Cancel delivery
+Navigating ---> Home : Food delivered
+Navigating ---> Home : Mission abort
+Navigating ---> Home : Cancel pickup
+Kitchen ---> Kitchen : Wait for confirmation
+
+' Error handling
+Navigating ---> Error : Navigation error
+Kitchen ---> Error : Pickup failed
+Table ---> Error : Delivery failed
+Error ---> Error : Attempt recovery
+Error ---> Home : Error recovery failed
+Error ---> Kitchen : Retry pickup
+Error ---> Table : Retry Delivery
+
+Home --> [*] : Mission accomplished
+
+@enduml

@@ -1,0 +1,91 @@
+@startuml
+actor Customer
+actor Kitchen
+actor Robot
+
+' Home position for the robot
+entity "Home" as Home
+
+' Robot starts at home position
+Home -> Robot : Start task
+
+' Condition 1: Normal task (move to kitchen -> table -> home)
+Customer -> Robot : Order received (Table #)
+Robot -> Home : Start from home
+Robot -> Kitchen : Move to kitchen
+Kitchen -> Robot : Get food
+Robot -> Customer : Move to table
+Customer -> Robot : Confirm delivery (optional)
+Robot -> Home : Move to home
+
+' Condition 2: No confirmation, wait for timeout
+Customer -> Robot : Order received (Table #)
+Robot -> Home : Start from hoSupash@207
+me
+Robot -> Kitchen : Move to kitchen
+Robot -> Customer : Move to table
+alt Timeout (no confirmation)
+    Robot -> Kitchen : Timeout, return to kitchen
+    Robot -> Home : Move to home
+end
+
+' Condition 3: Food pickup and delivery, handling no confirmation at table
+Customer -> Robot : Order received (Table #)
+Robot -> Home : Start from home
+Robot -> Kitchen : Move to kitchen
+Kitchen -> Robot : Get food
+Robot -> Customer : Move to table
+alt Timeout (no confirmation)
+    Robot -> Kitchen : Return to kitchen
+    Robot -> Home : Move to home
+end
+
+' Condition 4: Task canceled, return to kitchen or home
+Customer -> Robot : Order received (Table #)
+Robot -> Home : Start from home
+Robot -> Kitchen : Move to kitchen
+alt Task canceled while going to table
+    Robot -> Kitchen : Return to kitchen
+    Robot -> Home : Move to home
+end
+alt Task canceled while going to kitchen
+    Robot -> Home : Return to home
+end
+
+' Condition 5: Multiple orders (multiple table deliveries)
+Customer -> Robot : Multiple orders (Table 1, 2, 3)
+Robot -> Home : Start from home
+Robot -> Kitchen : Move to kitchen
+Kitchen -> Robot : Get food
+Robot -> Customer : Move to table 1
+Robot -> Customer : Move to table 2
+Robot -> Customer : Move to table 3
+Robot -> Home : Return to home
+
+' Condition 6: Multiple orders with no confirmation from some tables
+Customer -> Robot : Multiple orders (Table 1, 2, 3)
+Robot -> Home : Start from home
+Robot -> Kitchen : Move to kitchen
+Kitchen -> Robot : Get food
+Robot -> Customer : Move to table 1
+alt No confirmation at Table 1
+    Robot -> Customer : Move to table 2
+    Robot -> Customer : Move to table 3
+end
+Robot -> Kitchen : Return to kitchen
+Robot -> Home : Return to home
+
+' Condition 7: Multiple orders, table order canceled
+Customer -> Robot : Multiple orders (Table 1, 2, 3)
+Robot -> Home : Start from home
+Robot -> Kitchen : Move to kitchen
+Kitchen -> Robot : Get food
+Robot -> Customer : Move to table 1
+Robot -> Customer : Move to table 2 (canceled)
+alt Skip canceled order (table 2)
+    Robot -> Customer : Move to table 3
+end
+Robot -> Kitchen : Return to kitchen
+Robot -> Home : Return to home
+
+@enduml
